@@ -5,10 +5,10 @@ changes in those directories with respect to the original installation. This ver
 you plan to do it periodically, for example once a week.
 
 The changes that should be checked are at least the following four:
-• Deleted files
-• New files added
-• Changes in permissions of existing files
-• Changes in the content of existing files
++ Deleted files
++ New files added
++ Changes in permissions of existing files
++ Changes in the content of existing files
 The proposed strategy is as follows: first, the current configuration of
 the directories will be saved, with the names of the files, permissions, lengths, etc. Periodically, that
 saved settings will be compared to the current settings and if differences are found, it will
