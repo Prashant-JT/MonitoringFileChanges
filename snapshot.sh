@@ -11,7 +11,8 @@ functionFind()
 {
 	for file in $(find $bin)
 	do
-		if [[ ! -d $file ]]; then
+		if [[ ! -d $file ]]
+		then
 			map[$(md5sum $file)]="$(stat --printf="%a" $file)"
 		else
 			map[$file]="$(stat --printf="%a" $file)"
