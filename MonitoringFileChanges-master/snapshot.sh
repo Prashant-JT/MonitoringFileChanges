@@ -9,6 +9,9 @@ die() {
     exit 1
 }
 
+#Control de errores
+[[ $# -ne 0]] && die "Este script hace una foto actual del estado los directorios /bin /usr/bin /sbin /usr/bin"
+
 functionFind()
 {
 	for file in $(find $1)
