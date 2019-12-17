@@ -31,4 +31,4 @@ dir=/var/log/
 for i in "${directory[@]}"
 do
 	functionFind $i
-done > "$dir""$(date +"%F_%H:%M")"
+done > "$dir"'/'"$(date +"%F_%H:%M:%S")"
