@@ -27,12 +27,8 @@ functionFind()
 	done
 }
 
-dir=/var/log/binchecker
-if [[ ! -d $dir ]]; then
-		mkdir /var/log/binchecker
-fi
-
+dir=/var/log/
 for i in "${directory[@]}"
 do
 	functionFind $i
-done > "$dir"'/'"$(date +"%F_%H:%M")"
+done > "$dir""$(date +"%F_%H:%M")"
