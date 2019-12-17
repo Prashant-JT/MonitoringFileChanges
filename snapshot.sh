@@ -9,22 +9,30 @@ declare -A map
 
 functionFind()
 {
-	for file in $(find $bin)
+	for file in $(find $sbin)
 	do
-		if [[ ! -d $file ]]
-		then
+		if [[ ! -d $file ]]; then
 			map[$(md5sum $file)]="$(stat --printf="%a" $file)"
+			echo "$map[$(md5sum $file)]" "${map[$(md5sum $file)]}"
 		else
 			map[$file]="$(stat --printf="%a" $file)"
+			echo "$map[$file]" "${map[$file]}"
 		fi
-		echo "$map[$(md5sum $file)]" "${map[$(md5sum $file)]}"	
-	done
+			
+	
+	done > $(date +"%F_%H:%M")
+     
+
 }
+
 
 die() {
     echo $1 >&2
     exit 1
 }
 
+
+
 functionFind
+
 
