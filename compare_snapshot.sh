@@ -37,6 +37,7 @@ do
 				continue
 			fi
 		fi
+	# Es un directorio
 	else
 		PERM=$NAME
 		NAME=$(echo $CHECK | tr -d '[]')
