@@ -1,48 +1,42 @@
 #!/bin/bash
 
-dir=/var/log/carpeta
-[[ ! -d $dir ]] && die "No hay nignuna copia Snapshot anterior"
-[[ $# -ne 0 ]] && die "No se necesita ningún argumento"
+dir=/var/log/binchecker
+[[ ! -d $dir ]] && die "No existe ninguna copia anterior"
+[[ $# -ne 0 ]] && die "No debe tener ningún argumento"
 
-snapshotOld=$(ls /var/log/carpeta -t | head -1)
-$(/var/log/snapshot.sh)
-snapshotNow=$(ls /var/log/carpeta -t | head -1)
-echo "$snapshotOld"
-echo "$snapshotNow"
+snapshotOld=$(ls $dir -t | head -1)
+$(/root/Escritorio/snapshot.sh)
+snapshotNew=$(ls $dir -t | head -1)
 
-cd /var/log/carpeta/
-diff $snapshotOld $snapshotNow > /var/log/dif
+echo "El old es: $snapshotOld" 
+echo "El new es: $snapshotNew"
 
 while read CHECK NAME PERM
 do
-	# Es un fichero
 	if [[ $PERM != "" ]]
-	then
-		#NAME=$(echo $NAME | tr -d ']')
-		CHECK=$(echo $CHECK | tr -d '[')
-		if [[ $(grep $NAME $snapshotOld | tr -s " ") == "" ]]
+	then	
+		line=$(grep "$NAME" "$dir/$snapshotOld")
+		if [[ $line == "" ]]
 		then
-			NAME=$(echo $NAME | tr -d ']')
-			echo "El fichero $NAME se ha añadido"
+			echo "El fichero $NAME es un añadido desde la última copia"
 		else
-			CHECKold=$(grep $NAME $snapshotOld | tr -s " " | cut -d" " -f1 | tr -d '[')
-			PERMold=$(grep $NAME $snapshotOld | tr -s " " | cut -d" " -f3)
-			if [[ $CHECK != $CHECKold ]]
+			CHECKold=$(echo $line | cut -d" " -f1)
+			NAMEold=$(echo $line | cut -d" " -f2)
+			PERMold=$(echo $line | cut -d" " -f3)
+			if [[ $CHECKold != $CHECK ]]
 			then
-				echo "Se ha modificado el contenido del fichero $NAME"
-			elif [[ $PERM -ne $PERMold ]]
+				echo "El fichero $NAME ha cambiado de contenido"
+			elif [[ $PERMold != $PERM ]]
 			then
-				echo "Se ha modificado los permisos del fichero $NAME"
-			else
-				continue
+				echo "El fichero $NAME ha cambiado de permisos"
 			fi
 		fi
-	# Es un directorio
 	else
-		PERM=$NAME
-		NAME=$(echo $CHECK | tr -d '[]')
+		PERM=$(echo $NAME)
+		NAME=$(echo $CHECK)
 		CHECK=0
+		echo "$NAME es un directorio"
 	fi
-done < /var/log/carpeta/$snapshotNow
+done < "$dir/$snapshotNew"
 
-rm -f $snapshotNow
+rm -f "$dir/$snapshotNew"
