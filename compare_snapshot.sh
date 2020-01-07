@@ -137,35 +137,38 @@ done >> "changes_""$snapshotNow" #El registro demlos cambios se desvía a la rut
 echo "PRUEBA" >> "$dir""/""$snapshotNow"
 rm -f "$dir""/""$snapshotNow"
 
-#Implementación del crontab
-read -n 1 -p "¿Desea que se realice un backup periódicamente? [s/n]: " OPTION
-echo ""
-if [[ $OPTION == "s" ]]
-then	
-	#Comprueba si ya existe una configuración antigua o no
-	if [[ $(crontab -l | grep "compareBackups.sh$") == "" ]]
-	then
-		crontab -l > mycron
-		read -n 2 -p "¿En qué minuto debe realizarlo? [00-59]: " MIN
-		echo ""
-		[[ $MIN -lt 0 || $MIN -gt 59 ]] && die "Los minutos son incorrectos"
-		read -n 2 -p "¿A qué hora debe realizarlo? [00-23]: " HOUR
-		echo ""		
-		[[ $HOUR -lt 0 || $HOUR -gt 23 ]] && die "Las horas son incorrectas"
-		read -n 2 -p "¿En qué día del mes debe realizarlo? [01-31]: " DOM
-		echo ""		
-		[[ $DOM -lt 0 || $DOM -gt 31 ]] && die "El día del mes es incorrecto"		
-		read -n 2 -p "¿En qué mes debe realizarlo? [01-12]: " MON
-		echo ""
-		[[ $MON -lt 0 || $MON -gt 12 ]] && die "El mes es incorrecto"		
-		read -n 1 -p "¿En qué día de la semana debe realizarlo? [0-6]: " DOW
-		echo ""		
-		[[ $DOW -lt 0 || $DOW -gt 6 ]] && die "El día de la semana es incorrecto"
-		echo "$MIN $HOUR $DOM $MON $DOW $pwd/compareBackups.sh" >> mycron
+
+#Comprueba si ya existe una configuración antigua o no
+if [[ $(crontab -l | grep "compare_snapshot.sh$") == "" ]]
+then
+	#Implementación del crontab
+	read -n 1 -p "¿Desea que se realice un backup periódicamente? [s/n]: " OPTION
+	echo ""
+	if [[ $OPTION == "s" ]]
+	then	
+		read -p "¿En qué minuto debe realizarlo? [00-59|*]: " MIN
+		regex="^([0-5]?[0-9]|\*)$"
+		[[ ! $MIN =~ $regex ]] && die "Los minutos son incorrectos"
+
+		read -p "¿A qué hora debe realizarlo? [00-23|*]: " HOUR
+		regex="^([0-2]?[0-23]|\*)$"
+		[[ ! $HOUR =~ $regex ]] && die "Las horas son incorrectas"
+
+		read -p "¿En qué día del mes debe realizarlo? [01-31|*]: " DOM
+		regex="^([0-2]?[1-9]|30|31|\*)$"
+		[[ ! $DOM =~ $regex ]] && die "El día del mes es incorrecto"	
+	
+		read -p "¿En qué mes debe realizarlo? [01-12|*]: " MON
+		regex="^(0?[1-9]|10|11|12|\*)$"
+		[[ ! $MON =~ $regex ]] && die "El mes es incorrecto"
+		
+		read -p "¿En qué día de la semana debe realizarlo? [0-6|*]: " DOW
+		regex="^([0-6]|\*)$"
+		[[ ! $DOW =~ $regex ]] && die "El día de la semana es incorrecto"
+		route=$(pwd)"/compare_snapshot.sh"
+		echo "$MIN $HOUR $DOM $MON $DOW $route" >> mycron
 		echo "Se ha guardado la configuración con éxito"		
 		crontab mycron
 		rm -f mycron
-	else
-		echo "El crontab tiene una configuración antigua, revise el crontab (crontab -l)"
 	fi
 fi
