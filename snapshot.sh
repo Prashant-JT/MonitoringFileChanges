@@ -28,10 +28,10 @@ functionFind()
 	done
 }
 
-dir="/var/log/binchecker"
+dir="/var/log/snapshots"
 if [[ ! -d $dir ]]
 then
-	mkdir /var/log/binchecker
+	mkdir /var/log/snapshots
 fi
 
 dirFinal="$dir""/""$(date +"%F_%T")"

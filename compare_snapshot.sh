@@ -10,19 +10,25 @@ die() {
 #Opción "-l", compara el estado actual con el último backup realizado.
 [[ $# -gt 1 ]] && die "Este script puede aceptar un argumento. Uso: $0 [-l], para comparar con el último backup."
 
-dir="/var/log/binchecker" #El directorio donde se almacenan los backups.
+dir="/var/log/snapshots" #El directorio donde se almacenan los backups.
+dirChanges="/var/log/binchecker" #El directorio donde se almacenará los ficheros con los cambios
 
-#Control de errores 1: 
-##Puede que se haya alterado la carpeta contenedora de los backups.
-##Puede que no se haya realizado ninguna copia de seguridad anteriormente.
+#Control de errores 1:
+##Puede que no se haya ejecutado ninguna vez una copia de seguridad, por lo que el archivo snapshot no existe
 if [[ ! -d "$dir" ]]
 then
-	die "No se ha realizado ninguna copia de seguridad anteriormente (/var/log/binchecker no encontrado)"
+	die "No se ha realizado ninguna copia de seguridad anteriormente (/var/log/snapshots no encontrado)"
 elif [[ ! "$(ls $dir)" ]]
 then
-	die "No existe ninguna copia de seguridad en /var/log/binchecker"
+	die "No existe ninguna copia de seguridad en /var/log/snapshots"
 fi
 
+#Control de errores 2: 
+##Puede que no se haya realizado ningún fichero de cambios anteriormente y este sea la primera vez en ejecutarse
+if [[ ! -d "$dirChanges" ]]
+then
+	mkdir $dirChanges
+fi
 
 if [[ $1 == "-l" ]]
 then
@@ -34,16 +40,11 @@ else
 	die "Argumento erróneo. Uso: $0 [-l], para comparar con el último backup."
 fi
 
-#Control de errores 2:
-##Puede que se haya realizado un backup incompleto, debido a un parón del script.
-##Puede que el último backup sea un backup temporal creado por este script, esto
-##sucedería si se detuvo este script. Por ello se pone marcas finales para reconocerlos.
-if [[ $(tail -n 1 "$dir""/""$snapshotOld") == "PRUEBA" ]]
+#Control de errores 3:
+##Puede que se haya realizado un backup incompleto, debido a un parón del script.Por ello se pone marcas finales para reconocerlos.
+if [[ $(tail -n 1 "$dir""/""$snapshotOld") != "FIN" ]]
 then
-	rm -f "$dir""/""$snapshotOld"
-elif [[ $(tail -n 1 "$dir""/""$snapshotOld") != "FIN" ]]
-then
-	die "La copia de seguridad: ""$snapshotOld ""(más reciente) está incompleta"
+	die "La copia de seguridad: ""$snapshotOld ""está incompleta"
 fi
 
 #Se ejcuta el script de backups para obtener una "foto" actual y compararla con la última realizada.
@@ -58,7 +59,7 @@ permNewD=""
 direcNewD=""
 
 #Ayuda para visualizar mejor la salida.
-echo "Nuevo(*), Suprimido(**), Modificado(***)\n" > "changes_""$snapshotNow"
+echo "Nuevo(*), Suprimido(**), Modificado(***)\n" > "$dirChanges""/""changes_""$snapshotNow"
 
 #En el backup, se guarda la información de la siguiente manera:
 #Directorios-> [Ruta__Directorio] Permisos
@@ -128,15 +129,11 @@ do
 			fi
 		fi
 	fi
-done >> "changes_""$snapshotNow" #El registro demlos cambios se desvía a la ruta actual.
+done >> "$dirChanges""/""changes_""$snapshotNow" #El registro de los cambios se desvía a la ruta actual.
 
-
-#Se escribe una muestra para identificar que es un backup auxiliar.
 #Se procede a eliminar dicho backup auxiliar, si no se borrase adecuadamente
 #quedaría presente una marca para identificarlo y no tenerlo en cuenta.
-echo "PRUEBA" >> "$dir""/""$snapshotNow"
 rm -f "$dir""/""$snapshotNow"
-
 
 #Comprueba si ya existe una configuración antigua o no
 if [[ $(crontab -l | grep "compare_snapshot.sh$") == "" ]]
