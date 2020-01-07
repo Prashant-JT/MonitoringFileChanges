@@ -89,7 +89,6 @@ test3()
 	cd /bin
 	echo "Este es el primer fichero" >> A
 
-	# No debe detectar cambios de contenido
 	cd /sbin
 	echo "" >> B
 
