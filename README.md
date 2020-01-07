@@ -29,3 +29,5 @@ The text entry must be of the type: «the file /bin/ls has a different content.
 Current control sum = 0e9b71b256c37eb521a4a2b0a66593a2.
 Original control sum = 0e9b71b256c37eb521a4a2b0a6659rh3 ».
 The script must sufficiently inform about the disparity that has been found.
+
+Both of the scripts include an option "-h" for further help.
