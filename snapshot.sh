@@ -6,7 +6,25 @@ die()
     exit 1
 }
 
+printHelp()
+{	
+	echo "Descripción: Realiza una ""foto"" actual del sistema de los" 
+	echo -e "\t     directorios: /bin /usr/bin /sbin /usr/bin." 
+	echo -e "\t     Crea una carpeta en /var/log/snapshots en la cual"
+	echo -e "\t     guarda un fichero con su fecha y hora de creación."
+	echo ""
+	echo -e "usage:  ./snapshot.sh"
+	echo ""
+	echo -e "\t-h  Muestra la ayuda"
+	die
+}
+
+
 #Control de errores
+if [[ $1 == "-h" ]]
+then
+	printHelp
+fi
 [[ $# -ne 0 ]] && die "Este script hace una ""foto"" actual del estado los directorios /bin /usr/bin /sbin /usr/bin"
 
 declare -a files

@@ -6,6 +6,22 @@ die() {
     exit 1
 }
 
+printHelp()
+{	
+	echo "Descripción: Realiza una comparación con una foto anterior." 
+	echo -e "\t     Por defecto, se compara con la foto original."
+	echo -e "\t     Crea una carpeta en /var/log/binchecker en la cual"
+	echo -e "\t     guarda los cambios en un fichero llamado changes_[fecha][hora]."  
+	echo -e "\t     Si no existe ninguna configuración actual en el crontab,"
+	echo -e "\t     ofrece la opción de establecer una personalizada."
+	echo ""
+	echo -e "usage:  ./compare_snapshot.sh [-l]"
+	echo ""	
+	echo -e "\t-l  Realiza la comparación con la última foto realizada"
+	echo -e "\t-h  Muestra la ayuda"
+	die
+}
+
 dir="/var/log/snapshots" #El directorio donde se almacenan los backups.
 dirChanges="/var/log/binchecker" #El directorio donde se almacenará los ficheros con los cambios
 
@@ -30,14 +46,17 @@ then
 	mkdir $dirChanges
 fi
 
-if [[ $1 == "-l" ]]
+if [[ $1 == "-h" ]]
+then
+	printHelp
+elif [[ $1 == "-l" ]]
 then
 	snapshotOld=$(ls -t $dir | head -1) #El último backup realizado.
 elif [[ $# -eq 0 ]]
 then
 	snapshotOld=$(ls -t $dir | tail -1) #El primer backup realizado.
 else 
-	die "Argumento erróneo. Uso: $0 [-l], para comparar con el último backup."
+	die "Argumento erróneo. Uso: $0, [-l] para comparar con el último backup."
 fi
 
 #Control de errores 3:
@@ -85,7 +104,7 @@ executeComparation()
 			then
 				if [[ $(grep -E " $direc]" $dir"/"$snapshotOld) == "" ]] #Si el nombre del fichero no está presente en el backup antiguo, es nuevo.
 				then 
-					echo "*Nuevo archivo desde la ultima copia de seguridad: "$direc
+					echo "*Nuevo archivo: "$direc
 				else #Si está, es que ha habido alguna moficiación, se guarda sus datos para la siguiente iteración.
 					hashCodeNewF=$hashcode
 					permNewF=$perm
@@ -94,7 +113,7 @@ executeComparation()
 			else #Todo aquello que sean directorios.
 				if [[ $(grep -E "$hashcode" $dir"/"$snapshotOld) == "" ]] #Si el nombre del directorio no está presente en el backup anterior, es nuevo.
 				then 
-					echo "*Nueva carpeta desde la ultima copia de seguridad: "$hashcode 
+					echo "*Nueva carpeta: "$hashcode 
 				else #Si está, es que ha habido alguna modificación, se guarda sus datos, aparte, para la siguiente iteración.
 					permNewD=$direc
 					direcNewD=$hashcode
@@ -106,12 +125,12 @@ executeComparation()
 			then
 				if [[ $(grep -E " $direc]" $dir"/"$snapshotNow) == "" ]] #Si el nombre del fichero no está presente en el backup nuevo, se ha suprimido.
 				then 
-					echo "**Archivo suprimido desde la ultima copia de seguridad: "$direc
+					echo "**Archivo suprimido: "$direc
 				else #Si está, es que se ha modificado, y como es un fichero, puede cambiar tanto su checksum como sus permisos.
-					echo "***Archivo modificado desde la ultima copia de seguridad: "$direcNewF
+					echo "***Archivo modificado: "$direcNewF
 					if [[ $hashCodeNewF != $hashcode ]]
 					then
-						echo -e "\tSe cambio su contenido: hashcode antiguo-> "$hashcode" - hashcode nuevo-> "$hashCodeNewF
+						echo -e "\tSe cambió su contenido: hashcode antiguo-> "$hashcode" - hashcode nuevo-> "$hashCodeNewF
 					fi
 					if [[ $permNewF != $perm ]]
 					then 
@@ -121,9 +140,9 @@ executeComparation()
 			else #Todo aquello que sean directorios.
 				if [[ $(grep -E "$hashcode" $dir"/"$snapshotNow) == "" ]] #Si el nombre del directorio no está presente en el backup nuevo, se ha suprimido.
 				then 
-					echo "**Carpeta suprimida desde la ultima copia de seguridad: "$hashcode
+					echo "**Carpeta suprimida: "$hashcode
 				else #Si está, es que se ha modificado, y como es un directorio sólo pueden cambiar sus permisos.
-					echo "***Carpeta modificada desde la ultima copia de seguridad: "$direcNewD
+					echo "***Carpeta modificada: "$direcNewD
 					if [[ $permNewD != $direc ]]
 					then
 						echo -e "\tSe cambiaron sus permisos: permisos antiguos-> "$direc" - permisos nuevos-> "$permNewD
