@@ -1,6 +1,7 @@
 #!/bin/bash
 
-die() {
+die() 
+{
     echo $1 >&2
     exit 1
 }
@@ -9,8 +10,9 @@ die() {
 [[ $# -ne 0 ]] && die "Este script hace una ""foto"" actual del estado los directorios /bin /usr/bin /sbin /usr/bin"
 
 declare -a files
-directory=("/bin" "/usr/bin" "/sbin" "/usr/sbin")
 declare -A map
+directory=("/bin" "/usr/bin" "/sbin" "/usr/sbin")
+dir="/var/log/snapshots"
 
 functionFind()
 {
@@ -28,16 +30,20 @@ functionFind()
 	done
 }
 
-dir="/var/log/snapshots"
-if [[ ! -d $dir ]]
-then
-	mkdir /var/log/snapshots
-fi
+executeSnapshot()
+{
+	if [[ ! -d $dir ]]
+	then
+		mkdir /var/log/snapshots
+	fi
 
-dirFinal="$dir""/""$(date +"%F_%T")"
-for i in "${directory[@]}"
-do
-	functionFind $i
-done > "$dirFinal"
+	dirFinal="$dir""/""$(date +"%F_%T")"
+	for i in "${directory[@]}"
+	do
+		functionFind $i
+	done > "$dirFinal"
 
-echo "FIN" >> "$dirFinal"
+	echo "FIN" >> "$dirFinal"
+}
+
+executeSnapshot
