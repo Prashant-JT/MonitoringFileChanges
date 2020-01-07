@@ -28,7 +28,8 @@ writeChanges()
 
 	echo "test3" >> testChanges
 	echo "Se ha modificado el contenido de /bin/A" >> testChanges
-	echo "Se ha añadido en /usr/bin/C dos ficheros llamados C1 y C2, además de un directorio 		llamado C3" >> testChanges
+	echo "Se ha modificado el contenido de /bin/B" >> testChanges
+	echo "Se ha añadido en /usr/bin/C dos ficheros llamados C1 y C2, además de un directorio llamado C3" >> testChanges
 	
 	echo "test4" >> testChanges
 	echo "Se ha eliminado el fichero /bin/A" >> testChanges
@@ -55,7 +56,7 @@ test1()
 
 # Ficheros y directorios modificados (permisos)
 # A => 664 -> 666
-# B => No ha cambiado
+# B => Se ha modificado
 # C => 755 -> 777
 # D => No ha cambiado
 test2()
