@@ -1,8 +1,8 @@
 # MonitoringFileChanges
 The purpose is to monitor the contents of the directories where the
 system programs (/bin, /usr/bin, /sbin/, /usr/sbin). It's about checking if there are
-changes in those directories with respect to the last backup. This verification allows
-you plan to do it periodically, for example once a week.
+changes in those directories respect to the original backup if the option "-l" is not specified in the script "compare_snapshot.sh". 
+This verification allows you plan to do it periodically, for example once a week.
 
 The changes that should be checked are at least the following four:
 + Deleted files
@@ -23,7 +23,8 @@ To meet these objectives, these two scripts sre developed:
 a sum of control of your content.
 
 2. Script "compare_snapshot" to compare the original “photo” with the current content of those
-folders and report any difference as a text entry in the file /var/log/binchecker.
+folders and report any difference as a text entry in the file /var/log/binchecker. There is an "-l" option 
+which checks to the last backup and not to the original one (by default).
 The text entry must be of the type: «the file /bin/ls has a different content.
 Current control sum = 0e9b71b256c37eb521a4a2b0a66593a2.
 Original control sum = 0e9b71b256c37eb521a4a2b0a6659rh3 ».
