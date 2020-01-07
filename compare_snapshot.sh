@@ -6,6 +6,10 @@ die() {
     exit 1
 }
 
+#Opción por defecto, compara el estado actual con el primer backup realizado.
+#Opción "-l", compara el estado actual con el último backup realizado.
+[[ $# -gt 1 ]] && die "Este script puede aceptar un argumento. Uso: $0 [-l], para comparar con el último backup."
+
 dir="/var/log/binchecker" #El directorio donde se almacenan los backups.
 
 #Control de errores 1: 
@@ -19,7 +23,16 @@ then
 	die "No existe ninguna copia de seguridad en /var/log/binchecker"
 fi
 
-snapshotOld=$(ls -t $dir | head -1) #El último backup realizado.
+
+if [[ $1 == "-l" ]]
+then
+	snapshotOld=$(ls -t $dir | head -1) #El último backup realizado.
+elif [[ $# -eq 0 ]]
+then
+	snapshotOld=$(ls -t $dir | tail -1) #El primer backup realizado.
+else 
+	die "Argumento erróneo. Uso: $0 [-l], para comparar con el último backup."
+fi
 
 #Control de errores 2:
 ##Puede que se haya realizado un backup incompleto, debido a un parón del script.
@@ -126,32 +139,32 @@ rm -f "$dir""/""$snapshotNow"
 
 #Implementación del crontab
 read -n 1 -p "¿Desea que se realice un backup periódicamente? [s/n]: " OPTION
+echo ""
 if [[ $OPTION == "s" ]]
-echo -e "\n"
-then
+then	
 	#Comprueba si ya existe una configuración antigua o no
-	if [[ $(crontab -l | grep "/root/Escritorio/compare_snapshot.sh") == "" ]]
+	if [[ $(crontab -l | grep "compareBackups.sh$") == "" ]]
 	then
 		crontab -l > mycron
-		read -n 2 -p "¿En qué minuto debe realizarlo? [01-59]: " MIN
-		echo -e "\n"
+		read -n 2 -p "¿En qué minuto debe realizarlo? [00-59]: " MIN
+		echo ""
 		[[ $MIN -lt 0 || $MIN -gt 59 ]] && die "Los minutos son incorrectos"
-		read -n 2 -p "¿A qué hora debe realizarlo? [01-23]: " HOUR
-		echo -e "\n"		
+		read -n 2 -p "¿A qué hora debe realizarlo? [00-23]: " HOUR
+		echo ""		
 		[[ $HOUR -lt 0 || $HOUR -gt 23 ]] && die "Las horas son incorrectas"
 		read -n 2 -p "¿En qué día del mes debe realizarlo? [01-31]: " DOM
-		echo -e "\n"		
+		echo ""		
 		[[ $DOM -lt 0 || $DOM -gt 31 ]] && die "El día del mes es incorrecto"		
 		read -n 2 -p "¿En qué mes debe realizarlo? [01-12]: " MON
-		echo -e "\n"
+		echo ""
 		[[ $MON -lt 0 || $MON -gt 12 ]] && die "El mes es incorrecto"		
 		read -n 1 -p "¿En qué día de la semana debe realizarlo? [0-6]: " DOW
-		echo -e "\n"		
+		echo ""		
 		[[ $DOW -lt 0 || $DOW -gt 6 ]] && die "El día de la semana es incorrecto"
-		echo "$MIN $HOUR $DOM $MON $DOW /root/Escritorio/compare_snapshot.sh" >> mycron
-		echo "Se ha guardado la configuaración con éxito"		
+		echo "$MIN $HOUR $DOM $MON $DOW $pwd/compareBackups.sh" >> mycron
+		echo "Se ha guardado la configuración con éxito"		
 		crontab mycron
-		rm mycron
+		rm -f mycron
 	else
 		echo "El crontab tiene una configuración antigua, revise el crontab (crontab -l)"
 	fi
