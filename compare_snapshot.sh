@@ -165,6 +165,7 @@ then
 		read -p "¿En qué día de la semana debe realizarlo? [0-6|*]: " DOW
 		regex="^([0-6]|\*)$"
 		[[ ! $DOW =~ $regex ]] && die "El día de la semana es incorrecto"
+		
 		route=$(pwd)"/compare_snapshot.sh"
 		echo "$MIN $HOUR $DOM $MON $DOW $route" >> mycron
 		echo "Se ha guardado la configuración con éxito"		
