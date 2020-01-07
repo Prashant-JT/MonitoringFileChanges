@@ -1,7 +1,7 @@
 # MonitoringFileChanges
 The purpose is to monitor the contents of the directories where the
 system programs (/bin, /usr/bin, /sbin/, /usr/sbin). It's about checking if there are
-changes in those directories with respect to the original installation. This verification allows
+changes in those directories with respect to the last backup. This verification allows
 you plan to do it periodically, for example once a week.
 
 The changes that should be checked are at least the following four:
