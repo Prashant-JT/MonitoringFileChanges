@@ -1,6 +1,5 @@
 # MonitoringFileChanges
-The purpose is to monitor the contents of the directories where the
-system programs (/bin, /usr/bin, /sbin/, /usr/sbin). It's about checking if there are
+The purpose is to monitor the contents of the directories /bin, /usr/bin, /sbin/, /usr/sbin. It's about checking if there are
 changes in those directories respect to the original backup if the option "-l" is not specified in the script "compare_snapshot.sh". 
 This verification allows you plan to do it periodically, for example once a week.
 
